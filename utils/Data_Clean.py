@@ -122,7 +122,7 @@ def save_data(train_x, train_y, test_x, train_x_output, train_y_output, test_x_o
         print('test_y_length is ', count_3)
 
 
-def execute():
+if __name__ == '__main__':
     train_x, train_y, test_x, _ = parse_data('../resource/input/AutoMaster_TrainSet.csv', '../resource/input/AutoMaster_TestSet.csv')
 
     print(len(train_x))

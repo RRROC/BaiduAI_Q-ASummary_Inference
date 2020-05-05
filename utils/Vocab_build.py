@@ -54,7 +54,7 @@ def build_vocab(items, sort=True, min_count=0, lower=False):
     return vocab, reverse_vocab
 
 
-def execute():
+if __name__ == '__main__':
     lines = read_data('../resource/output/train_set_x.txt',
                       '../resource/output/train_set_y.txt',
                       '../resource/output/test_set_x.txt')

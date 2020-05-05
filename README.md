@@ -24,5 +24,11 @@ Please run the program from Main_Entrance.py and the vocabulary table called "vo
 
 
 
+## Week-2
+
+Create a file called Vocab_build.py for generating word embedding by using Gensim.
+
+After that, by using the vocabulary created last week, a vocabulary metric has been created.
+
 
 
