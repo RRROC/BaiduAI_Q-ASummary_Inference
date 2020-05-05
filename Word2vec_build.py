@@ -68,5 +68,5 @@ def build(train_x_path, train_y_path, test_x_path, out_path=None, sentence_out_p
 
 
 if __name__ == '__main__':
-    build('./output/train_set_x.txt', './output/train_set_y.txt', './output/test_set_x.txt',
-          out_path='./output/word2vec.txt', sentence_out_path='./output/sentences.txt')
+    build('./resource/output/train_set_x.txt', './resource/output/train_set_y.txt', './resource/output/test_set_x.txt',
+          out_path='./resource/output/word2vec.txt', sentence_out_path='./resource/output/sentences.txt')

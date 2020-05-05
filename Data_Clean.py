@@ -123,10 +123,10 @@ def save_data(train_x, train_y, test_x, train_x_output, train_y_output, test_x_o
 
 
 def execute():
-    train_x, train_y, test_x, _ = parse_data('./input/AutoMaster_TrainSet.csv', './input/AutoMaster_TestSet.csv')
+    train_x, train_y, test_x, _ = parse_data('./resource/input/AutoMaster_TrainSet.csv', './resource/input/AutoMaster_TestSet.csv')
 
     print(len(train_x))
     print(len(train_y))
 
-    save_data(train_x, train_y, test_x, './output/train_set_x.txt', './output/train_set_y.txt',
-              './output/test_set_x.txt', stop_words_path='./input/stop_words.txt')
+    save_data(train_x, train_y, test_x, './resource/output/train_set_x.txt', './resource/output/train_set_y.txt',
+              './resource/output/test_set_x.txt', stop_words_path='./resource/input/stop_words.txt')
