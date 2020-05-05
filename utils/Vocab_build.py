@@ -55,8 +55,8 @@ def build_vocab(items, sort=True, min_count=0, lower=False):
 
 
 def execute():
-    lines = read_data('./resource/output/train_set_x.txt',
-                      './resource/output/train_set_y.txt',
-                      './resource/output/test_set_x.txt')
+    lines = read_data('../resource/output/train_set_x.txt',
+                      '../resource/output/train_set_y.txt',
+                      '../resource/output/test_set_x.txt')
     vocab, reverse_vocab = build_vocab(lines)
-    save_word_dict(vocab, './resource/output/vocab.txt')
+    save_word_dict(vocab, '../resource/output/vocab.txt')

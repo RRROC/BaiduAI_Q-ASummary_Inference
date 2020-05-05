@@ -47,7 +47,7 @@ def save_sentence(lines, sentence_path):
 
 
 def build(train_x_path, train_y_path, test_x_path, out_path=None, sentence_out_path='',
-          w2v_bin_path='./model/w2v.bin', min_count=200):
+          w2v_bin_path='../resource/model/w2v.bin', min_count=200):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train w2v model...')
@@ -68,5 +68,5 @@ def build(train_x_path, train_y_path, test_x_path, out_path=None, sentence_out_p
 
 
 if __name__ == '__main__':
-    build('./resource/output/train_set_x.txt', './resource/output/train_set_y.txt', './resource/output/test_set_x.txt',
-          out_path='./resource/output/word2vec.txt', sentence_out_path='./resource/output/sentences.txt')
+    build('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt', '../resource/output/test_set_x.txt',
+          out_path='../resource/output/word2vec.txt', sentence_out_path='../resource/output/sentences.txt')
