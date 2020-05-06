@@ -1,4 +1,6 @@
+import multiprocessing
 from gensim.models import Word2Vec
+from gensim.models import FastText
 from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
 import pickle
@@ -52,25 +54,34 @@ def save_sentence(lines, sentence_path):
     print('save sentence in %s' % sentence_path)
 
 
-def build(train_x_path, train_y_path, test_x_path, out_path=None, sentence_out_path='',
-          w2v_bin_path='../resource/model/w2v.bin', min_count=200):
+# Wk2 homework
+# 使用gensim word2vec来训练词向量
+def build_by_word2vec(train_x_path, train_y_path, test_x_path, sentence_out_path='',
+                      w2v_bin_path='../resource/model/w2v.bin', min_count=50):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train w2v model...')
 
     # train model
     w2v = Word2Vec(sg=1, sentences=LineSentence(sentence_out_path),
-                   size=256, window=5, min_count=min_count, iter=5)
+                   size=256, window=5, min_count=min_count, iter=5, workers=multiprocessing.cpu_count())
 
     w2v.wv.save_word2vec_format(w2v_bin_path, binary=True)
+    print('w2v model has been finished!')
 
-    model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
 
-    word_dict = {}
-    for word in model.vocab:
-        word_dict[word] = model[word]
+# Wk2 homework
+# 使用gensim fasttext来训练词向量
+def build_by_fasttext(train_x_path, train_y_path, test_x_path, sentence_out_path='',
+                      ft_bin_path='../resource/model/ft.bin', min_count=50):
+    sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
+    save_sentence(sentences, sentence_out_path)
+    print('train fasttext model...')
+    ft = FastText(sg=1, sentences=LineSentence(sentence_out_path), size=256, window=5, min_count=min_count,
+                  workers=multiprocessing.cpu_count(), iter=5)
 
-    dump_pkl(word_dict, out_path, overwrite=True)
+    ft.wv.save_word2vec_format(ft_bin_path, binary=True)
+    print('fasttext model has been finished!')
 
 
 # 读取词向量和Wk1构建的vocab词表，以vocab中的index为key值构建embedding_matrix
@@ -93,9 +104,29 @@ def create_word2vec_metric(vocab_path, model_path):
 
 
 if __name__ == '__main__':
-    build('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
-          '../resource/output/test_set_x.txt',
-          out_path='../resource/output/word2vec.txt', sentence_out_path='../resource/output/sentences.txt')
+    # 通过word2vec训练词向量
+    build_by_word2vec('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+                      '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
+    # 通过fasttext训练词向量
+    build_by_fasttext('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+                      '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
 
-    metric = create_word2vec_metric('../resource/output/vocab.txt', '../resource/model/w2v.bin')
-    dump_pkl(metric, '../resource/output/vocab_metric.txt')
+    # Wk2 homework
+    # 生成词向量字典
+    w2v_metric = create_word2vec_metric('../resource/output/vocab.txt', '../resource/model/w2v.bin')
+    ft_metric = create_word2vec_metric('../resource/output/vocab.txt', '../resource/model/ft.bin')
+
+    print('length of w2v_metrics: {}'.format(len(w2v_metric)))
+    print('length of ft_metrics: {}'.format(len(ft_metric)))
+
+    # Wk2 homework
+    # 存储词向量字典
+    dump_pkl(w2v_metric, '../resource/output/w2v_vocab_metric.txt')
+    dump_pkl(ft_metric, '../resource/output/ft_vocab_metric.txt')
+
+    # 测试两种model的表现
+    w2v_model = KeyedVectors.load_word2vec_format('../resource/model/w2v.bin', binary=True)
+    ft_model = KeyedVectors.load_word2vec_format('../resource/model/ft.bin', binary=True)
+    print('w2v_model\'s most similar word: \n{}'.format(w2v_model.most_similar('汽车')))
+    print('ft_model\'s most similar word: \n{}'.format(ft_model.most_similar('汽车')))
+
