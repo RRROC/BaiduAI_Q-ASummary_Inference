@@ -30,5 +30,5 @@ Create a file called Vocab_build.py for generating word embedding by using Gensi
 
 After that, by using the vocabulary created last week, a vocabulary metric has been created.
 
-
+Besides, I also tried fastText to train word vector, and compared with word2vec model.
 
