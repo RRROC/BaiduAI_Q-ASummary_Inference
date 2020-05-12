@@ -85,7 +85,7 @@ def build_by_fasttext(train_x_path, train_y_path, test_x_path, sentence_out_path
 
 
 # 读取词向量和Wk1构建的vocab词表，以vocab中的index为key值构建embedding_matrix
-def create_word2vec_metric(vocab_path, model_path):
+def create_embedding_metric(vocab_path, model_path):
     vocab = []
     with open(vocab_path, mode='r', encoding='utf-8') as f:
         for line in f:
@@ -104,29 +104,34 @@ def create_word2vec_metric(vocab_path, model_path):
 
 
 if __name__ == '__main__':
-    # 通过word2vec训练词向量
-    build_by_word2vec('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
-                      '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
-    # 通过fasttext训练词向量
-    build_by_fasttext('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
-                      '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
+    TRAIN = False
+    if TRAIN:
+        # 通过word2vec训练词向量
+        build_by_word2vec('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+                          '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
+        # 通过fasttext训练词向量
+        build_by_fasttext('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+                          '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
 
-    # Wk2 homework
-    # 生成词向量字典
-    w2v_metric = create_word2vec_metric('../resource/output/vocab.txt', '../resource/model/w2v.bin')
-    ft_metric = create_word2vec_metric('../resource/output/vocab.txt', '../resource/model/ft.bin')
+        # Wk2 homework
+        # 生成词向量字典
+        w2v_metric = create_embedding_metric('../resource/output/vocab.txt', '../resource/model/w2v.bin')
+        ft_metric = create_embedding_metric('../resource/output/vocab.txt', '../resource/model/ft.bin')
+
+        # Wk2 homework
+        # 存储词向量字典
+        dump_pkl(w2v_metric, '../resource/output/w2v_vocab_metric.txt')
+        dump_pkl(ft_metric, '../resource/output/ft_vocab_metric.txt')
+
+    else:
+        w2v_metric = load_pkl('../resource/output/w2v_vocab_metric.txt')
+        ft_metric = load_pkl('../resource/output/ft_vocab_metric.txt')
 
     print('length of w2v_metrics: {}'.format(len(w2v_metric)))
     print('length of ft_metrics: {}'.format(len(ft_metric)))
-
-    # Wk2 homework
-    # 存储词向量字典
-    dump_pkl(w2v_metric, '../resource/output/w2v_vocab_metric.txt')
-    dump_pkl(ft_metric, '../resource/output/ft_vocab_metric.txt')
 
     # 测试两种model的表现
     w2v_model = KeyedVectors.load_word2vec_format('../resource/model/w2v.bin', binary=True)
     ft_model = KeyedVectors.load_word2vec_format('../resource/model/ft.bin', binary=True)
     print('w2v_model\'s most similar word: \n{}'.format(w2v_model.most_similar('汽车')))
     print('ft_model\'s most similar word: \n{}'.format(ft_model.most_similar('汽车')))
-
