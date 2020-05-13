@@ -5,6 +5,8 @@ from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
 import pickle
 import os
+import numpy as np
+import utils.embedding as embedding
 
 
 def dump_pkl(vocab, pkl_path, overwrite=True):
@@ -57,7 +59,7 @@ def save_sentence(lines, sentence_path):
 # Wk2 homework
 # 使用gensim word2vec来训练词向量
 def build_by_word2vec(train_x_path, train_y_path, test_x_path, sentence_out_path='',
-                      w2v_bin_path='../resource/model/w2v.bin', min_count=50):
+                      w2v_bin_path='../resource/model/w2v.bin', min_count=20):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train w2v model...')
@@ -73,7 +75,7 @@ def build_by_word2vec(train_x_path, train_y_path, test_x_path, sentence_out_path
 # Wk2 homework
 # 使用gensim fasttext来训练词向量
 def build_by_fasttext(train_x_path, train_y_path, test_x_path, sentence_out_path='',
-                      ft_bin_path='../resource/model/ft.bin', min_count=50):
+                      ft_bin_path='../resource/model/ft.bin', min_count=20):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train fasttext model...')
@@ -86,21 +88,32 @@ def build_by_fasttext(train_x_path, train_y_path, test_x_path, sentence_out_path
 
 # 读取词向量和Wk1构建的vocab词表，以vocab中的index为key值构建embedding_matrix
 def create_embedding_metric(vocab_path, model_path):
-    vocab = []
-    with open(vocab_path, mode='r', encoding='utf-8') as f:
-        for line in f:
-            vocab.append(line.split())
+    # vocab = []
+    # with open(vocab_path, mode='r', encoding='utf-8') as f:
+    #     for line in f:
+    #         vocab.append(line.split())
+    #
+    # model = KeyedVectors.load_word2vec_format(model_path, binary=True)
+    #
+    # word2vec_metric = {}
+    # for word in model.vocab:
+    #     for ele in vocab:
+    #         if word == ele[1]:
+    #             word2vec_metric[int(ele[0])] = model[word]
+    #             break
+    #
+    # return word2vec_metric
 
+    vocab = embedding.Vocab(vocab_path, 30000)
     model = KeyedVectors.load_word2vec_format(model_path, binary=True)
+    word_dict = {}
 
-    word2vec_metric = {}
-    for word in model.vocab:
-        for ele in vocab:
-            if word == ele[1]:
-                word2vec_metric[int(ele[0])] = model[word]
-                break
-
-    return word2vec_metric
+    for word, index in vocab.word2id.items():
+        if word in model.vocab:
+            word_dict[index] = model[word]
+        else:
+            word_dict[index] = np.random.uniform(-0.025, 0.025, 256)
+    return word_dict
 
 
 if __name__ == '__main__':

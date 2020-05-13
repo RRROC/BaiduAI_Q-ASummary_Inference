@@ -74,6 +74,7 @@ def parse_data(train_path, test_path):
 
 def save_data(train_x, train_y, test_x, train_x_output, train_y_output, test_x_output, stop_words_path):
     stop_words = read_stopwords(stop_words_path)
+    print('start to cut the words...')
     with open(train_x_output, mode='w', encoding='utf-8') as f_train_x:
         count_train_x = 0
         for line in train_x:
@@ -123,7 +124,8 @@ def save_data(train_x, train_y, test_x, train_x_output, train_y_output, test_x_o
 
 
 if __name__ == '__main__':
-    train_x, train_y, test_x, _ = parse_data('../resource/input/AutoMaster_TrainSet.csv', '../resource/input/AutoMaster_TestSet.csv')
+    train_x, train_y, test_x, _ = parse_data('../resource/input/AutoMaster_TrainSet.csv',
+                                             '../resource/input/AutoMaster_TestSet.csv')
 
     print(len(train_x))
     print(len(train_y))
