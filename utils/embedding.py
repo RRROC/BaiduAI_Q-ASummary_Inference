@@ -1,7 +1,7 @@
-import utils.Data_Clean as dc
-import utils.Vocab_build as vb
-import utils.Word2vec_build as wb
-from utils.config.read_config import ReadConfig
+import utils.data_process.Word2vec_build as wb
+import utils.data_process.Vocab_build as vb
+import utils.data_process.Data_Clean as dc
+import utils.config.path_constant as path
 
 
 # 字典类
@@ -50,19 +50,18 @@ class Vocab:
 
 if __name__ == '__main__':
     # 读取文件路径
-    rc = ReadConfig()
-    raw_train_set = rc.get_path('raw_train_set')
-    raw_test_set = rc.get_path('raw_test_set')
-    train_set_x = rc.get_path('train_set_x')
-    train_set_y = rc.get_path('train_set_y')
-    test_set_x = rc.get_path('test_set_x')
-    stop_words = rc.get_path('stop_words')
-    vocab_path = rc.get_path('vocab_path')
-    sentence_path = rc.get_path('sentence_path')
-    w2v_model = rc.get_path('w2v_model')
-    ft_model = rc.get_path('ft_model')
-    w2v_vocab_metric = rc.get_path('w2v_vocab_metric')
-    ft_vocab_metric = rc.get_path('ft_vocab_metric')
+    raw_train_set = path.RAW_TRAIN_SET
+    raw_test_set = path.RAW_TEST_SET
+    train_set_x = path.TRAIN_SET_X
+    train_set_y = path.TRAIN_SET_Y
+    test_set_x = path.TEST_SET_X
+    stop_words = path.STOP_WORDS
+    vocab_path = path.VOCAB_PATH
+    sentence_path = path.SENTENCE_PATH
+    w2v_model = path.W2V_MODEL
+    ft_model = path.FT_MODEL
+    w2v_vocab_metric = path.W2V_VOCAB_METRIC
+    ft_vocab_metric = path.FT_VOCAB_METRIC
 
     # # step 1 清洗数据
     # train_x, train_y, test_x, _ = dc.parse_data(raw_train_set, raw_test_set)

@@ -120,25 +120,25 @@ if __name__ == '__main__':
     TRAIN = False
     if TRAIN:
         # 通过word2vec训练词向量
-        build_by_word2vec('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+        build_by_word2vec('../../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
                           '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
         # 通过fasttext训练词向量
-        build_by_fasttext('../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
+        build_by_fasttext('../../resource/output/train_set_x.txt', '../resource/output/train_set_y.txt',
                           '../resource/output/test_set_x.txt', sentence_out_path='../resource/output/sentences.txt')
 
         # Wk2 homework
         # 生成词向量字典
-        w2v_metric = create_embedding_metric('../resource/output/vocab.txt', '../resource/model/w2v.bin')
-        ft_metric = create_embedding_metric('../resource/output/vocab.txt', '../resource/model/ft.bin')
+        w2v_metric = create_embedding_metric('../../resource/output/vocab.txt', '../resource/model/w2v.bin')
+        ft_metric = create_embedding_metric('../../resource/output/vocab.txt', '../resource/model/ft.bin')
 
         # Wk2 homework
         # 存储词向量字典
-        dump_pkl(w2v_metric, '../resource/output/w2v_vocab_metric.txt')
-        dump_pkl(ft_metric, '../resource/output/ft_vocab_metric.txt')
+        dump_pkl(w2v_metric, '../../resource/output/w2v_vocab_metric.txt')
+        dump_pkl(ft_metric, '../../resource/output/ft_vocab_metric.txt')
 
     else:
-        w2v_metric = load_pkl('../resource/output/w2v_vocab_metric.txt')
-        ft_metric = load_pkl('../resource/output/ft_vocab_metric.txt')
+        w2v_metric = load_pkl('../../resource/output/w2v_vocab_metric.txt')
+        ft_metric = load_pkl('../../resource/output/ft_vocab_metric.txt')
 
     print('length of w2v_metrics: {}'.format(len(w2v_metric)))
     print('length of ft_metrics: {}'.format(len(ft_metric)))
