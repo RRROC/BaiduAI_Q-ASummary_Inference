@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # vb.save_word_dict(vocab, vocab_path)
     #
     # # step 3  构建词向量,这里是已经对应了index转化之后的词向量
-    # wb.build_by_word2vec(train_set_x, train_set_y, test_set_x, sentence_out_path=sentence_path)
+    # wb.build_by_word2vec(train_set_x, train_set_y, test_set_x, sentence_out_path=sentence_path) # train embedding
     w2v_metric = wb.create_embedding_metric(vocab_path, w2v_model)
     print(w2v_metric[0])
     wb.dump_pkl(w2v_metric, w2v_vocab_metric)

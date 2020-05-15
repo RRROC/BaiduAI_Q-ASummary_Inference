@@ -59,7 +59,7 @@ def save_sentence(lines, sentence_path):
 # Wk2 homework
 # 使用gensim word2vec来训练词向量
 def build_by_word2vec(train_x_path, train_y_path, test_x_path, sentence_out_path='',
-                      w2v_bin_path='../resource/model/w2v.bin', min_count=20):
+                      w2v_bin_path='../resource/model/w2v.bin', min_count=5):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train w2v model...')
@@ -75,7 +75,7 @@ def build_by_word2vec(train_x_path, train_y_path, test_x_path, sentence_out_path
 # Wk2 homework
 # 使用gensim fasttext来训练词向量
 def build_by_fasttext(train_x_path, train_y_path, test_x_path, sentence_out_path='',
-                      ft_bin_path='../resource/model/ft.bin', min_count=20):
+                      ft_bin_path='../resource/model/ft.bin', min_count=5):
     sentences = extract_sentence(train_x_path, train_y_path, test_x_path)
     save_sentence(sentences, sentence_out_path)
     print('train fasttext model...')

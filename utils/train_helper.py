@@ -6,8 +6,8 @@ import numpy as np
 
 def train_model(model, dataset, params, ckpt_manager, vocab):
     print(vocab)
-    start_index = vocab.word_to_id('[START]')
-    pad_index = vocab.word_to_id('[PAD]')
+    start_index = vocab.word_to_id('<START>')
+    pad_index = vocab.word_to_id('<PAD>')
 
     optimizer = tf.keras.optimizers.Adam(name='Adam', learning_rate=params["learning_rate"])
 
@@ -25,6 +25,7 @@ def train_model(model, dataset, params, ckpt_manager, vocab):
             loss = loss_function(dec_tar[:, 1:],
                                  predictions, pad_index)
 
+        # 下面这三行是固定写法
         variables = model.trainable_variables
         gradients = tape.gradient(loss, variables)
         optimizer.apply_gradients(zip(gradients, variables))

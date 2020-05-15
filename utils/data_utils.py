@@ -26,8 +26,8 @@ def load_word2vec(params):
 
     for line in vocab_dict[:params['vocab_size']]:
         word_id = line.split()
-        word, i = word_id
-        embedding_vector = word2vec_dict.get(word)
+        i, word = word_id
+        embedding_vector = word2vec_dict.get(i)
         if embedding_vector is not None:
             embedding_matrix[int(i)] = embedding_vector
 

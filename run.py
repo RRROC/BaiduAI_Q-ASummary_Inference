@@ -5,13 +5,14 @@ import argparse
 import training
 import pathlib
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 # from testing import test_and_save
 
 # 获取项目根目录
 root = pathlib.Path(os.path.abspath(__file__)).parent.parent
+
 
 
 def main():
@@ -40,17 +41,17 @@ def main():
     # path
     # /ckpt/checkpoint/checkpoint
     print(BASE_DIR)
-    parser.add_argument("--seq2seq_model_dir", default='/root/Ass1/ckpt/seq2seq', help="Model folder")
+    parser.add_argument("--seq2seq_model_dir", default=BASE_DIR+'/Ass1/ckpt/seq2seq', help="Model folder")
     parser.add_argument("--model_path", help="Path to a specific model", default="", type=str)
-    parser.add_argument("--train_seg_x_dir", default='/root/Ass1/resource/output/train_set_x.txt',
+    parser.add_argument("--train_seg_x_dir", default=BASE_DIR+'/Ass1/resource/output/train_set_x.txt',
                         help="train_seg_x_dir")
-    parser.add_argument("--train_seg_y_dir", default='/root/Ass1/resource/output/train_set_y.txt',
+    parser.add_argument("--train_seg_y_dir", default=BASE_DIR+'/Ass1/resource/output/train_set_y.txt',
                         help="train_seg_y_dir")
-    parser.add_argument("--test_seg_x_dir", default='/root/Ass1/resource/output/test_set_x.txt',
+    parser.add_argument("--test_seg_x_dir", default=BASE_DIR+'/Ass1/resource/output/test_set_x.txt',
                         help="test_seg_x_dir")
-    parser.add_argument("--vocab_path", default='/root/Ass1/resource/output/vocab.txt', help="Vocab path")
-    parser.add_argument("--word2vec_output", default='/root/Ass1/resource/output/w2v_vocab_metric.txt', help="Vocab path")
-    # parser.add_argument("--test_save_dir", default='/root/Ass1/resource/output/', help="test_save_dir")
+    parser.add_argument("--vocab_path", default=BASE_DIR+'/Ass1/resource/output/vocab.txt', help="Vocab path")
+    parser.add_argument("--word2vec_output", default=BASE_DIR+'/Ass1/resource/output/w2v_vocab_metric.txt', help="Vocab path")
+    # parser.add_argument("--test_save_dir", default=root+'/Ass1/resource/output/', help="test_save_dir")
 
     # others
     parser.add_argument("--steps_per_epoch", default=200, help="max_train_steps", type=int)
@@ -60,7 +61,7 @@ def main():
     parser.add_argument("--epochs", default=5, help="train epochs", type=int)
 
     # mode
-    parser.add_argument("--mode", default='test', help="training, eval or test options")
+    parser.add_argument("--mode", default='train', help="training, eval or test options")
     parser.add_argument("--model", default='SequenceToSequence', help="which model to be slected")
     parser.add_argument("--pointer_gen", default=True, help="training, eval or test options")
     parser.add_argument("--is_coverage", default=True, help="is_coverage")
@@ -73,6 +74,8 @@ def main():
     gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
     if gpus:
         tf.config.experimental.set_visible_devices(devices=gpus[0], device_type='GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
 
     if params["mode"] == "train":
         training.train(params)
