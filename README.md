@@ -32,3 +32,11 @@ After that, by using the vocabulary created last week, a vocabulary metric has b
 
 Besides, I also tried fastText to train word vector, and compared with word2vec model.
 
+
+
+## Week-3
+
+This week, the baseline of the whole system has been finished. Basically it adopts Seq2Seq model to analyze and train data.
+
+It contains encoder layer, decoder layer and attention layer. The size of vocabulary is limited to 30000 in order to boost training speed.  
+
