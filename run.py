@@ -4,6 +4,7 @@ import tensorflow as tf
 import argparse
 import training
 import pathlib
+from testing import test_and_save
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -51,17 +52,18 @@ def main():
     parser.add_argument("--vocab_path", default=BASE_DIR + '/Ass1/resource/output/vocab.txt', help="Vocab path")
     parser.add_argument("--word2vec_output", default=BASE_DIR + '/Ass1/resource/output/w2v_vocab_metric.txt',
                         help="Vocab path")
-    # parser.add_argument("--test_save_dir", default=root+'/Ass1/resource/output/', help="test_save_dir")
+    parser.add_argument("--test_save_dir", default=BASE_DIR+'/Ass1/resource/output/', help="test_save_dir")
+    parser.add_argument("--test_df_dir", default=BASE_DIR + '/Ass1/resource/input/AutoMaster_TestSet.csv')
 
     # others
     parser.add_argument("--steps_per_epoch", default=200, help="max_train_steps", type=int)
     parser.add_argument("--checkpoints_save_steps", default=10, help="Save checkpoints every N steps", type=int)
     parser.add_argument("--max_steps", default=10000, help="Max number of iterations", type=int)
-    parser.add_argument("--num_to_test", default=10, help="Number of examples to test", type=int)
+    parser.add_argument("--nums_to_test", default=10, help="Number of examples to test", type=int)
     parser.add_argument("--epochs", default=5, help="train epochs", type=int)
 
     # mode
-    parser.add_argument("--mode", default='train', help="training, eval or test options")
+    parser.add_argument("--mode", default='test', help="training, eval or test options")
     parser.add_argument("--model", default='SequenceToSequence', help="which model to be slected")
     parser.add_argument("--pointer_gen", default=True, help="training, eval or test options")
     parser.add_argument("--is_coverage", default=True, help="is_coverage")
@@ -81,7 +83,7 @@ def main():
         training.train(params)
 
     elif params["mode"] == "test":
-        # test_and_save(params)
+        test_and_save(params)
         pass
 
 
