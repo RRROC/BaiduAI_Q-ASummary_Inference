@@ -22,8 +22,7 @@ def train_model(model, dataset, params, ckpt_manager, vocab):
             dec_input = tf.expand_dims([start_index] * params["batch_size"], 1)
             dec_hidden = enc_hidden
             predictions, _ = model(dec_input, dec_hidden, enc_output, dec_tar)
-            loss = loss_function(dec_tar[:, 1:],
-                                 predictions, pad_index)
+            loss = loss_function(dec_tar, predictions, pad_index)
 
         # 下面这三行是固定写法
         variables = model.trainable_variables

@@ -42,7 +42,7 @@ class SequenceToSequence(tf.keras.Model):
 
         context_vector, _ = self.attention(dec_hidden, enc_output)
 
-        for t in range(1, dec_target.shape[1]):
+        for t in range(dec_target.shape[1]):
             pred, dec_hidden = self.decoder(dec_input,
                                             dec_hidden,
                                             enc_output,
@@ -51,6 +51,12 @@ class SequenceToSequence(tf.keras.Model):
             context_vector, attn = self.attention(dec_hidden, enc_output)
             # using teacher forcing
             dec_input = tf.expand_dims(dec_target[:, t], 1)
+            for i in range(dec_input.shape[0]):
+                if dec_input[i][0] > self.params['vocab_size'] - 1:
+                    part1 = dec_input[:i]
+                    part2 = dec_input[i + 1:]
+                    val = tf.constant([[1]])
+                    dec_input = tf.concat([part1, val, part2], axis=0)
 
             predictions.append(pred)
             attentions.append(attn)

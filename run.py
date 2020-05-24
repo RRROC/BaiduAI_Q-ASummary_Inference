@@ -14,7 +14,6 @@ sys.path.append(BASE_DIR)
 root = pathlib.Path(os.path.abspath(__file__)).parent.parent
 
 
-
 def main():
     parser = argparse.ArgumentParser()
     # 模型参数
@@ -29,7 +28,7 @@ def main():
     #                     type=int)
     parser.add_argument("--batch_size", default=3, help="batch size", type=int)
 
-    parser.add_argument("--vocab_size", default=30000, help="Vocabulary size", type=int)
+    parser.add_argument("--vocab_size", default=2000, help="Vocabulary size", type=int)
     parser.add_argument("--embed_size", default=256, help="Words embeddings dimension", type=int)
     parser.add_argument("--enc_units", default=256, help="Encoder GRU cell units number", type=int)
     parser.add_argument("--dec_units", default=256, help="Decoder GRU cell units number", type=int)
@@ -41,16 +40,17 @@ def main():
     # path
     # /ckpt/checkpoint/checkpoint
     print(BASE_DIR)
-    parser.add_argument("--seq2seq_model_dir", default=BASE_DIR+'/Ass1/ckpt/seq2seq', help="Model folder")
+    parser.add_argument("--seq2seq_model_dir", default=BASE_DIR + '/Ass1/ckpt/seq2seq', help="Model folder")
     parser.add_argument("--model_path", help="Path to a specific model", default="", type=str)
-    parser.add_argument("--train_seg_x_dir", default=BASE_DIR+'/Ass1/resource/output/train_set_x.txt',
+    parser.add_argument("--train_seg_x_dir", default=BASE_DIR + '/Ass1/resource/output/train_set_x.txt',
                         help="train_seg_x_dir")
-    parser.add_argument("--train_seg_y_dir", default=BASE_DIR+'/Ass1/resource/output/train_set_y.txt',
+    parser.add_argument("--train_seg_y_dir", default=BASE_DIR + '/Ass1/resource/output/train_set_y.txt',
                         help="train_seg_y_dir")
-    parser.add_argument("--test_seg_x_dir", default=BASE_DIR+'/Ass1/resource/output/test_set_x.txt',
+    parser.add_argument("--test_seg_x_dir", default=BASE_DIR + '/Ass1/resource/output/test_set_x.txt',
                         help="test_seg_x_dir")
-    parser.add_argument("--vocab_path", default=BASE_DIR+'/Ass1/resource/output/vocab.txt', help="Vocab path")
-    parser.add_argument("--word2vec_output", default=BASE_DIR+'/Ass1/resource/output/w2v_vocab_metric.txt', help="Vocab path")
+    parser.add_argument("--vocab_path", default=BASE_DIR + '/Ass1/resource/output/vocab.txt', help="Vocab path")
+    parser.add_argument("--word2vec_output", default=BASE_DIR + '/Ass1/resource/output/w2v_vocab_metric.txt',
+                        help="Vocab path")
     # parser.add_argument("--test_save_dir", default=root+'/Ass1/resource/output/', help="test_save_dir")
 
     # others
