@@ -40,3 +40,17 @@ This week, the baseline of the whole system has been finished. Basically it adop
 
 It contains encoder layer, decoder layer and attention layer. The size of vocabulary is limited to 30000 in order to boost training speed.  
 
+
+
+## Week-4
+
+The testing part has been added. Now it can restore the checkpoint and generate the summary finally. The baseline has been completed.
+
+Now it is using greedy_search in the testing part. I will add the beam search in the future (in process).
+
+Due to the capacity of local GPU, the vocabulary size is limited to 2000 in training section, which causes the model effect is not quite good.
+
+I will try to run it in cloud and make it better.
+
+
+

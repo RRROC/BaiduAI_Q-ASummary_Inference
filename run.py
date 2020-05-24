@@ -24,9 +24,9 @@ def main():
                         help="maximum number of words of the predicted abstract", type=int)
     parser.add_argument("--min_dec_steps", default=30,
                         help="Minimum number of words of the predicted abstract", type=int)
-    # parser.add_argument("--beam_size", default=3,
-    #                     help="beam size for beam search decoding (must be equal to batch size in decode mode)",
-    #                     type=int)
+    parser.add_argument("--beam_size", default=3,
+                        help="beam size for beam search decoding (must be equal to batch size in decode mode)",
+                        type=int)
     parser.add_argument("--batch_size", default=3, help="batch size", type=int)
 
     parser.add_argument("--vocab_size", default=2000, help="Vocabulary size", type=int)
@@ -52,7 +52,7 @@ def main():
     parser.add_argument("--vocab_path", default=BASE_DIR + '/Ass1/resource/output/vocab.txt', help="Vocab path")
     parser.add_argument("--word2vec_output", default=BASE_DIR + '/Ass1/resource/output/w2v_vocab_metric.txt',
                         help="Vocab path")
-    parser.add_argument("--test_save_dir", default=BASE_DIR+'/Ass1/resource/output/', help="test_save_dir")
+    parser.add_argument("--test_save_dir", default=BASE_DIR + '/Ass1/resource/output/', help="test_save_dir")
     parser.add_argument("--test_df_dir", default=BASE_DIR + '/Ass1/resource/input/AutoMaster_TestSet.csv')
 
     # others

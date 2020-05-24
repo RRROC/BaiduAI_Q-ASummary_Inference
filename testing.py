@@ -3,6 +3,7 @@ from models.seq2seq import SequenceToSequence
 from utils.batcher_utils import batcher
 from utils.embedding import Vocab
 from utils.test_helper import batch_greedy_decode
+from utils.test_helper import beam_decode
 from tqdm import tqdm
 import pandas as pd
 
