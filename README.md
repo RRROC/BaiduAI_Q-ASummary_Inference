@@ -54,3 +54,11 @@ I will try to run it in cloud and make it better.
 
 
 
+## Week-5
+
+The structure of the program has been improved. Now the program added PGN model, and it is separated from Seq2Seq model. You can use the parameters called "model" and "mode" to control which model you want to use (Seq2Seq or PGN) and testing or training.
+
+Basically, this update mainly focuses on the PGN. It also contains Beam Search and Coverage to solve the problems of OOV words and repeating words.
+
+Due to the limitation of my PC's capacity, I restricted the vocab_size to 2000. It may get better performance if the full vocabulary can be used.
+
