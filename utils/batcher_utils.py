@@ -12,7 +12,7 @@ STOP_DECODING = '[STOP]'
 def article_to_ids(article_words, vocab):
     ids = []
     oovs = []
-    unk_id = vocab.word_to_id(UNKNOWN_TOKEN)
+    unk_id = vocab.word_to_id(vocab.UNKNOWN_TOKEN)
     for w in article_words:
         i = vocab.word_to_id(w)
         if i == unk_id:  # If w is OOV
@@ -27,7 +27,7 @@ def article_to_ids(article_words, vocab):
 
 def abstract_to_ids(abstract_words, vocab, article_oovs):
     ids = []
-    unk_id = vocab.word_to_id(UNKNOWN_TOKEN)
+    unk_id = vocab.word_to_id(vocab.UNKNOWN_TOKEN)
     for w in abstract_words:
         i = vocab.word_to_id(w)
         if i == unk_id:  # If w is an OOV word
@@ -47,44 +47,23 @@ def output_to_words(id_list, vocab, article_oovs):
         try:
             w = vocab.id_to_word(i)  # might be [UNK]
         except ValueError as e:  # w is OOV
-            assert article_oovs is not None, "Error: model produced a word ID that isn't in the vocabulary. " \
-                                             "This should not happen in baseline (no pointer-generator) mode"
+            assert article_oovs is not None, "Error: model produced a word ID that isn't in the vocabulary. \
+            This should not happen in baseline (no pointer-generator) mode"
             article_oov_idx = i - vocab.size()
             try:
                 w = article_oovs[article_oov_idx]
             except ValueError as e:  # i doesn't correspond to an article oov
-                raise ValueError('Error: model produced word ID %i which corresponds to article OOV %i but this '
-                                 'example only has %i article OOVs' % (i, article_oov_idx, len(article_oovs)))
+                raise ValueError(
+                    'Error: model produced word ID %i which corresponds \
+                     to article OOV %i but this example only has %i article OOVs' % (
+                        i, article_oov_idx, len(article_oovs)))
         words.append(w)
     return words
 
 
-def abstract_to_sents(abstract):
-    """
-    Splits abstract text from datafile into list of sentences.
-    Args:
-    abstract: string containing <s> and </s> tags for starts and ends of sentences
-    Returns:
-    sents: List of sentence strings (no tags)
-    """
-    cur = 0
-    sents = []
-    while True:
-        try:
-            start_p = abstract.index(SENTENCE_START, cur)
-            end_p = abstract.index(SENTENCE_END, start_p + 1)
-            cur = end_p + len(SENTENCE_END)
-            sents.append(abstract[start_p + len(SENTENCE_START): end_p])
-        except ValueError as e:  # no more sentences
-            return sents
-
-
 def get_dec_inp_targ_seqs(sequence, max_len, start_id, stop_id):
     """
-    Given the reference summary as a sequence of tokens, return the input sequence for the decoder,
-    and the target sequence which we will use to calculate loss. The sequence will be truncated if it is longer
-    than max_len. The input sequence must start with the start_id and the target sequence must end with the stop_id
-    (but not if it's been truncated).
+    Given the reference summary as a sequence of tokens, return the input sequence for the decoder, and the target sequence which we will use to calculate loss. The sequence will be truncated if it is longer than max_len. The input sequence must start with the start_id and the target sequence must end with the stop_id (but not if it's been truncated).
     Args:
       sequence: List of ids (integers)
       max_len: integer
@@ -99,50 +78,84 @@ def get_dec_inp_targ_seqs(sequence, max_len, start_id, stop_id):
     if len(inp) > max_len:  # truncate
         inp = inp[:max_len]
         target = target[:max_len]  # no end_token
-    else:  # no truncation
+    elif len(inp) == max_len:
+        target.append(stop_id)
+    else:
         target.append(stop_id)  # end token
-    assert len(inp) == len(target)
+        inp.append(stop_id)  # end token
+    # assert len(inp) == len(target)
     return inp, target
 
 
-def example_generator(vocab, train_x_path, train_y_path, test_x_path, max_enc_len, max_dec_len, mode, batch_size):
-    if mode == "train":
-        dataset_train_x = tf.data.TextLineDataset(train_x_path)
-        dataset_train_y = tf.data.TextLineDataset(train_y_path)
-        train_dataset = tf.data.Dataset.zip((dataset_train_x, dataset_train_y))
-        train_dataset = train_dataset.shuffle(16, reshuffle_each_iteration=True).repeat()
-        # i = 0
+def get_enc_inp_targ_seqs(sequence, max_len, start_id, stop_id):
+    """
+    Given the reference summary as a sequence of tokens, return the input sequence for the decoder, and the target sequence which we will use to calculate loss. The sequence will be truncated if it is longer than max_len. The input sequence must start with the start_id and the target sequence must end with the stop_id (but not if it's been truncated).
+    Args:
+      sequence: List of ids (integers)
+      max_len: integer
+      start_id: integer
+      stop_id: integer
+    Returns:
+      inp: sequence length <=max_len starting with start_id
+      target: sequence same length as input, ending with stop_id only if there was no truncation
+    """
+    inp = [start_id] + sequence[:]
+    if len(inp) >= max_len:  # truncate
+        inp = inp[:max_len]
+    else:
+        inp.append(stop_id)  # end token
+    # assert len(inp) == len(target)
+    return inp
+
+
+def example_generator(params, vocab, max_enc_len, max_dec_len, mode, batch_size):
+    if mode == "train" or mode == 'eval':
+        if mode == "train":
+            dataset_1 = tf.data.TextLineDataset(params["train_seg_x_dir"])
+            dataset_2 = tf.data.TextLineDataset(params["train_seg_y_dir"])
+            train_dataset = tf.data.Dataset.zip((dataset_1, dataset_2))
+        elif mode == "eval":
+            dataset_1 = tf.data.TextLineDataset(params["val_seg_x_dir"])
+            dataset_2 = tf.data.TextLineDataset(params["val_seg_y_dir"])
+            train_dataset = tf.data.Dataset.zip((dataset_1, dataset_2))
+        # train_dataset = train_dataset.shuffle(10, reshuffle_each_iteration=True).repeat()
         for raw_record in train_dataset:
             article = raw_record[0].numpy().decode("utf-8")
             abstract = raw_record[1].numpy().decode("utf-8")
 
-            start_decoding = vocab.word_to_id(START_DECODING)
-            stop_decoding = vocab.word_to_id(STOP_DECODING)
+            start_decoding = vocab.word_to_id(vocab.START_TOKEN)
+            stop_decoding = vocab.word_to_id(vocab.STOP_TOKEN)
 
             article_words = article.split()[:max_enc_len]
-            enc_len = len(article_words)
-            # print('enc_inp shape is final for dataset:',enc_len)
-            # 添加mark标记
-            # print('enc_len is', enc_len)
-            sample_encoder_pad_mask = [1 for _ in range(enc_len)]
-            # print('sample_encoder_pad_mask is', sample_encoder_pad_mask)
 
             enc_input = [vocab.word_to_id(w) for w in article_words]
-            # print('enc_inp shape is final for dataset:', len(enc_input))
             enc_input_extend_vocab, article_oovs = article_to_ids(article_words, vocab)
+            # print('RRRROC: ',enc_input_extend_vocab)
+            # add start and stop flag
+            enc_input = get_enc_inp_targ_seqs(enc_input, max_enc_len, start_decoding, stop_decoding)
+            enc_input_extend_vocab = get_enc_inp_targ_seqs(enc_input_extend_vocab,
+                                                           max_enc_len, start_decoding,
+                                                           stop_decoding)
 
-            abstract_sentences = [""]
-            abstract_words = abstract.split()
-            abs_ids = [vocab.word_to_id(w) for w in abstract_words]
-            abs_ids_extend_vocab = abstract_to_ids(abstract_words, vocab, article_oovs)
-            dec_input, target = get_dec_inp_targ_seqs(abs_ids, max_dec_len, start_decoding, stop_decoding)
-            _, target = get_dec_inp_targ_seqs(abs_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
-
-            dec_len = len(dec_input)
+            # mark长度
+            enc_len = len(enc_input)
             # 添加mark标记
-            # print('dec_len ids ', dec_len)
-            sample_decoder_pad_mask = [1 for _ in range(dec_len)]
-            # print('sample_decoder_pad_mask is ', sample_decoder_pad_mask)
+            encoder_pad_mask = [1 for _ in range(enc_len)]
+            # print('mask: ', encoder_pad_mask)
+            abstract = raw_record[1].numpy().decode("utf-8")
+            abstract_words = abstract.split()
+
+            abs_ids = [vocab.word_to_id(w) for w in abstract_words]
+            dec_input, target = get_dec_inp_targ_seqs(abs_ids, max_dec_len, start_decoding, stop_decoding)
+
+            if params['model'] == 'PGN':
+                abs_ids_extend_vocab = abstract_to_ids(abstract_words, vocab, article_oovs)
+                _, target = get_dec_inp_targ_seqs(abs_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
+
+            # mark长度
+            dec_len = len(target)
+            # 添加mark标记
+            decoder_pad_mask = [1 for _ in range(dec_len)]
 
             output = {
                 "enc_len": enc_len,
@@ -154,30 +167,28 @@ def example_generator(vocab, train_x_path, train_y_path, test_x_path, max_enc_le
                 "dec_len": dec_len,
                 "article": article,
                 "abstract": abstract,
-                "abstract_sents": abstract_sentences,
-                "sample_decoder_pad_mask": sample_decoder_pad_mask,
-                "sample_encoder_pad_mask": sample_encoder_pad_mask,
+                "abstract_sents": abstract,
+                "decoder_pad_mask": decoder_pad_mask,
+                "encoder_pad_mask": encoder_pad_mask
             }
-            yield output
-
-    if mode == "test":
-        test_dataset = tf.data.TextLineDataset(test_x_path)
-        for raw_record in test_dataset:
-            # print('raw_record', raw_record)
-            # print('raw_record length is:',raw_record.get_shape())
+            if mode == "eval":
+                for _ in range(batch_size):
+                    yield output
+            else:
+                print('output: ', output)
+                yield output
+    else:
+        train_dataset = tf.data.TextLineDataset(params["test_seg_x_dir"])
+        for raw_record in train_dataset:
             article = raw_record.numpy().decode("utf-8")
-            # print('article length is:', len(article)) #277
-            # print(article)
-            # print('max_enc_len value is :',max_enc_len)
-            # print('article.split() length is:', len(article.split()))
             article_words = article.split()[:max_enc_len]
             enc_len = len(article_words)
 
             enc_input = [vocab.word_to_id(w) for w in article_words]
-            # print('enc_input length in generator',len(enc_input)) #99
             enc_input_extend_vocab, article_oovs = article_to_ids(article_words, vocab)
 
-            sample_encoder_pad_mask = [1 for _ in range(enc_len)]
+            # 添加mark标记
+            encoder_pad_mask = [1 for _ in range(enc_len)]
 
             output = {
                 "enc_len": enc_len,
@@ -186,50 +197,48 @@ def example_generator(vocab, train_x_path, train_y_path, test_x_path, max_enc_le
                 "article_oovs": article_oovs,
                 "dec_input": [],
                 "target": [],
-                "dec_len": 40,
+                "dec_len": params['max_dec_len'],
                 "article": article,
                 "abstract": '',
-                "abstract_sents": [],
-                "sample_decoder_pad_mask": [],
-                "sample_encoder_pad_mask": sample_encoder_pad_mask,
+                "abstract_sents": '',
+                "decoder_pad_mask": [],
+                "encoder_pad_mask": encoder_pad_mask
             }
-            # print('output is ', output)
             for _ in range(batch_size):
                 yield output
 
 
-def batch_generator(generator, vocab, train_x_path, train_y_path,
-                    test_x_path, max_enc_len, max_dec_len, batch_size, mode):
-    dataset = tf.data.Dataset.from_generator(lambda: generator(vocab, train_x_path, train_y_path, test_x_path,
-                                                               max_enc_len, max_dec_len, mode, batch_size),
-                                             output_types={
-                                                 "enc_len": tf.int32,
-                                                 "enc_input": tf.int32,
-                                                 "enc_input_extend_vocab": tf.int32,
-                                                 "article_oovs": tf.string,
-                                                 "dec_input": tf.int32,
-                                                 "target": tf.int32,
-                                                 "dec_len": tf.int32,
-                                                 "article": tf.string,
-                                                 "abstract": tf.string,
-                                                 "abstract_sents": tf.string,
-                                                 "sample_decoder_pad_mask": tf.int32,
-                                                 "sample_encoder_pad_mask": tf.int32,
-                                             },
-                                             output_shapes={
-                                                 "enc_len": [],
-                                                 "enc_input": [None],
-                                                 "enc_input_extend_vocab": [None],
-                                                 "article_oovs": [None],
-                                                 "dec_input": [None],
-                                                 "target": [None],
-                                                 "dec_len": [],
-                                                 "article": [],
-                                                 "abstract": [],
-                                                 "abstract_sents": [None],
-                                                 "sample_decoder_pad_mask": [None],
-                                                 "sample_encoder_pad_mask": [None],
-                                             })
+def batch_generator(generator, params, vocab, max_enc_len, max_dec_len, batch_size, mode):
+    dataset = tf.data.Dataset.from_generator(
+        lambda: generator(params, vocab, max_enc_len, max_dec_len, mode, batch_size),
+        output_types={
+            "enc_len": tf.int32,
+            "enc_input": tf.int32,
+            "enc_input_extend_vocab": tf.int32,
+            "article_oovs": tf.string,
+            "dec_input": tf.int32,
+            "target": tf.int32,
+            "dec_len": tf.int32,
+            "article": tf.string,
+            "abstract": tf.string,
+            "abstract_sents": tf.string,
+            "decoder_pad_mask": tf.int32,
+            "encoder_pad_mask": tf.int32,
+        },
+        output_shapes={
+            "enc_len": [],
+            "enc_input": [None],
+            "enc_input_extend_vocab": [None],
+            "article_oovs": [None],
+            "dec_input": [None],
+            "target": [None],
+            "dec_len": [],
+            "article": [],
+            "abstract": [],
+            "abstract_sents": [],
+            "decoder_pad_mask": [None],
+            "encoder_pad_mask": [None]
+        })
 
     dataset = dataset.padded_batch(batch_size,
                                    padded_shapes=({"enc_len": [],
@@ -241,21 +250,23 @@ def batch_generator(generator, vocab, train_x_path, train_y_path,
                                                    "dec_len": [],
                                                    "article": [],
                                                    "abstract": [],
-                                                   "abstract_sents": [None],
-                                                   "sample_decoder_pad_mask": [max_dec_len],
-                                                   "sample_encoder_pad_mask": [None]}),
+                                                   "abstract_sents": [],
+                                                   "decoder_pad_mask": [max_dec_len],
+                                                   "encoder_pad_mask": [None]
+                                                   }),
                                    padding_values={"enc_len": -1,
-                                                   "enc_input": 1,
-                                                   "enc_input_extend_vocab": 1,
+                                                   "enc_input": vocab.word2id[vocab.PAD_TOKEN],
+                                                   "enc_input_extend_vocab": vocab.word2id[vocab.PAD_TOKEN],
                                                    "article_oovs": b'',
-                                                   "dec_input": 1,
-                                                   "target": 1,
+                                                   "dec_input": vocab.word2id[vocab.PAD_TOKEN],
+                                                   "target": vocab.word2id[vocab.PAD_TOKEN],
                                                    "dec_len": -1,
-                                                   "article": b'',
-                                                   "abstract": b'',
+                                                   "article": b"",
+                                                   "abstract": b"",
                                                    "abstract_sents": b'',
-                                                   "sample_decoder_pad_mask": 0,
-                                                   "sample_encoder_pad_mask": 0},
+                                                   "decoder_pad_mask": 0,
+                                                   "encoder_pad_mask": 0
+                                                   },
                                    drop_remainder=True)
 
     def update(entry):
@@ -265,42 +276,27 @@ def batch_generator(generator, vocab, train_x_path, train_y_path,
                  "enc_len": entry["enc_len"],
                  "article": entry["article"],
                  "max_oov_len": tf.shape(entry["article_oovs"])[1],
-                 "sample_encoder_pad_mask": entry["sample_encoder_pad_mask"]},
+                 "encoder_pad_mask": entry["encoder_pad_mask"]},
 
                 {"dec_input": entry["dec_input"],
                  "dec_target": entry["target"],
                  "dec_len": entry["dec_len"],
                  "abstract": entry["abstract"],
-                 "sample_decoder_pad_mask": entry["sample_decoder_pad_mask"]})
+                 "decoder_pad_mask": entry["decoder_pad_mask"]})
 
     dataset = dataset.map(update)
     return dataset
 
 
-def batcher(vocab, hpm):
-    dataset = batch_generator(example_generator, vocab, hpm["train_seg_x_dir"], hpm["train_seg_y_dir"],
-                              hpm["test_seg_x_dir"], hpm["max_enc_len"],
-                              hpm["max_dec_len"], hpm["batch_size"], hpm["mode"])
-
+def batcher(vocab, params):
+    dataset = batch_generator(example_generator,
+                              params,
+                              vocab,
+                              params["max_enc_len"],
+                              params["max_dec_len"],
+                              params["batch_size"],
+                              params["mode"])
     return dataset
-
-
-def output_to_words(id_list, vocab, article_oovs):
-    words = []
-    for i in id_list:
-        try:
-            w = vocab.id_to_word(i)  # might be [UNK]
-        except ValueError as e:  # w is OOV
-            assert article_oovs is not None, "Error: model produced a word ID that isn't in the vocabulary. " \
-                                             "This should not happen in baseline (no pointer-generator) mode"
-            article_oov_idx = i - vocab.size()
-            try:
-                w = article_oovs[article_oov_idx]
-            except ValueError as e:  # i doesn't correspond to an article oov
-                raise ValueError('Error: model produced word ID %i which corresponds to article OOV %i but this '
-                                 'example only has %i article OOVs' % (i, article_oov_idx, len(article_oovs)))
-        words.append(w)
-    return words
 
 
 if __name__ == '__main__':
