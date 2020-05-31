@@ -175,7 +175,7 @@ def example_generator(params, vocab, max_enc_len, max_dec_len, mode, batch_size)
                 for _ in range(batch_size):
                     yield output
             else:
-                print('output: ', output)
+                # print('output: ', output)
                 yield output
     else:
         train_dataset = tf.data.TextLineDataset(params["test_seg_x_dir"])

@@ -37,7 +37,7 @@ def train_model(model, dataset, params, ckpt_manager, vocab):
                                                        params['cov_loss_wt'],
                                                        params['use_coverage'],
                                                        params['model'])
-            print('Batch_Loss: ', batch_loss)
+            print('Batch_Loss: {}, Log_Loss: {}, cov_loss: {}'.format(batch_loss, log_loss, cov_loss))
         variables = model.encoder.trainable_variables + model.decoder.trainable_variables + \
                     model.attention.trainable_variables + model.pointer.trainable_variables
         gradients = tape.gradient(batch_loss, variables)
@@ -65,9 +65,13 @@ def train_model(model, dataset, params, ckpt_manager, vocab):
                                                         dec_batch["dec_target"],
                                                         enc_pad_mask=enc_batch["encoder_pad_mask"],
                                                         padding_mask=dec_batch["decoder_pad_mask"])
-            total_loss += batch_loss
-            total_log_loss += log_loss
+            total_loss += batch_loss.numpy()
+            total_log_loss += log_loss.numpy()
             total_cov_loss += cov_loss
+
+            total_loss = float(format(total_loss, '.4f'))
+            total_log_loss = float(format(total_log_loss, '.4f'))
+            print('total_loss: {}, total_log_loss: {}'.format(total_loss, total_log_loss))
             step += 1
             if step % 50 == 0:
                 if params['use_coverage']:
@@ -87,6 +91,6 @@ def train_model(model, dataset, params, ckpt_manager, vocab):
                 print('Epoch {} Loss {:.4f}'.format(epoch + 1, total_loss / step))
                 print('Time taken for 1 epoch {} sec\n'.format(time.time() - start_time))
             # 学习率的衰减，按照训练的次数来更新学习率（tf1.x）
-            lr = params['learning_rate'] * np.power(0.9, epoch + 1)
-            optimizer = tf.keras.optimizers.Adam(name='Adam', learning_rate=lr)
-            print("learning_rate=", optimizer.get_config()["learning_rate"])
+            # lr = params['learning_rate'] * np.power(0.9, epoch + 1)
+            # optimizer = tf.keras.optimizers.Adam(name='Adam', learning_rate=lr)
+            # print("learning_rate=", optimizer.get_config()["learning_rate"])

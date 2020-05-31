@@ -46,9 +46,9 @@ def pgn_log_loss_function(real, final_dists, padding_mask):
         # The indices of the target words. shape (batch_size)
         targets = real[:, dec_step]
         indices = tf.stack((batch_nums, targets), axis=1)  # shape (batch_size, 2)
-        a = dist[:, 401]
+        # a = dist[:, 2009]
         gold_probs = tf.gather_nd(dist, indices)  # shape (batch_size). prob of correct words on this step
-        losses = -tf.math.log(gold_probs)
+        losses = -tf.math.log(tf.clip_by_value(gold_probs, 1e-8, 1.0))
         loss_per_step.append(losses)
     # Apply dec_padding_mask and get loss
     _loss = _mask_and_avg(loss_per_step, padding_mask)

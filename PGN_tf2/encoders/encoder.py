@@ -29,11 +29,11 @@ class Encoder(tf.keras.Model):
             output, forward_state, backward_state = self.bi_gru(enc_input_embedded,
                                                                 initial_state=[initial_state, initial_state])
             enc_hidden = tf.keras.layers.concatenate([forward_state, backward_state], axis=-1)
-            print(enc_hidden)
+            # print(enc_hidden)
 
         else:
             # 单向GRU
             output, enc_hidden = self.gru(enc_input_embedded, initial_state=initial_state)
-            print(output)
+            # print(output)
 
         return output, enc_hidden

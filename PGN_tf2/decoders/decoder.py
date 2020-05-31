@@ -77,7 +77,7 @@ class Decoder(tf.keras.Model):
                                        return_sequences=True,
                                        return_state=True,
                                        recurrent_initializer='glorot_uniform')
-        self.fc = tf.keras.layers.Dense(vocab_size)
+        self.fc = tf.keras.layers.Dense(vocab_size, activation=tf.keras.activations.softmax)
 
     def call(self, dec_input, prev_dec_hidden, enc_output, context_vector):
         # 使用上次的隐藏层（第一次使用编码器隐藏层）、编码器输出计算注意力权重

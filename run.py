@@ -68,19 +68,19 @@ def main():
     parser.add_argument("--test_df_dir", default='./resource/input/AutoMaster_TestSet.csv')
 
     # others
-    parser.add_argument("--steps_per_epoch", default=400, help="max_train_steps", type=int)
+    parser.add_argument("--steps_per_epoch", default=300, help="max_train_steps", type=int)
     parser.add_argument("--checkpoints_save_steps", default=10, help="Save checkpoints every N steps", type=int)
     parser.add_argument("--max_steps", default=10000, help="Max number of iterations", type=int)
     parser.add_argument("--nums_to_test", default=10, help="Number of examples to test", type=int)
     parser.add_argument("--epochs", default=5, help="train epochs", type=int)
 
     # mode
-    parser.add_argument("--mode", default='train', help="training, eval or test options")
+    parser.add_argument("--mode", default='test', help="training, eval or test options")
     parser.add_argument("--model", default='PGN', help="which model to be slected")
     parser.add_argument("--use_coverage", default=True, help="is_coverage")
     parser.add_argument("--greedy_decode", default=False, help="greedy_decoder")
     parser.add_argument("--transformer", default=False, help="transformer")
-    parser.add_argument("--use_GPU", default=False, help="transformer")
+    parser.add_argument("--use_GPU", default=True, help="transformer")
 
     args = parser.parse_args()
     params = vars(args)

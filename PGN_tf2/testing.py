@@ -33,9 +33,13 @@ def test(params):
         print('Initializing from scratch')
 
     result = []
+    test_step = 0
     for b in batch:
-        result.append(beam_decode(model, b, vocab, params))
-
+        if test_step < 10:
+            result.append(beam_decode(model, b, vocab, params))
+            test_step += 1
+        else:
+            break
     return result
 
 
