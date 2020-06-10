@@ -31,7 +31,7 @@ def main():
                         type=int)
     parser.add_argument("--batch_size", default=3, help="batch size", type=int)
 
-    parser.add_argument("--vocab_size", default=2000, help="Vocabulary size", type=int)
+    parser.add_argument("--vocab_size", default=30000, help="Vocabulary size", type=int)
     parser.add_argument("--embed_size", default=256, help="Words embeddings dimension", type=int)
     parser.add_argument("--enc_units", default=256, help="Encoder GRU cell units number", type=int)
     parser.add_argument("--dec_units", default=256, help="Decoder GRU cell units number", type=int)

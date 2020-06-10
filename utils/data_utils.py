@@ -14,7 +14,7 @@ def load_pkl(pkl_path):
     return result
 
 
-def load_word2vec(params, max_vocab_size=2000):
+def load_word2vec(params, max_vocab_size=30000):
     """
     load pretrain word2vec weight matrix
     :param vocab_size:
