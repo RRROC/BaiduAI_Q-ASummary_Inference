@@ -26,10 +26,10 @@ def main():
                         help="maximum number of words of the predicted abstract", type=int)
     parser.add_argument("--min_dec_steps", default=30,
                         help="Minimum number of words of the predicted abstract", type=int)
-    parser.add_argument("--beam_size", default=3,
+    parser.add_argument("--beam_size", default=6,
                         help="beam size for beam search decoding (must be equal to batch size in decode mode)",
                         type=int)
-    parser.add_argument("--batch_size", default=3, help="batch size", type=int)
+    parser.add_argument("--batch_size", default=6, help="batch size", type=int)
 
     parser.add_argument("--vocab_size", default=30000, help="Vocabulary size", type=int)
     parser.add_argument("--embed_size", default=256, help="Words embeddings dimension", type=int)
@@ -72,7 +72,7 @@ def main():
     parser.add_argument("--checkpoints_save_steps", default=10, help="Save checkpoints every N steps", type=int)
     parser.add_argument("--max_steps", default=10000, help="Max number of iterations", type=int)
     parser.add_argument("--nums_to_test", default=10, help="Number of examples to test", type=int)
-    parser.add_argument("--epochs", default=5, help="train epochs", type=int)
+    parser.add_argument("--epochs", default=15, help="train epochs", type=int)
 
     # mode
     parser.add_argument("--mode", default='test', help="training, eval or test options")
